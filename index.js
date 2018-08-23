@@ -45,9 +45,20 @@ function applyRouteOption(html, route) {
   if (route.meta) {
     _.each(route.meta, (content, name) => {
       const $meta = $(
-        [`meta[name="${name}"]`, `meta[property="${name}"]`].join(",")
+        [
+          `meta[name="${name}"]`,
+          `meta[property="${name}"]`,
+          `meta[http-equiv="${name}"]`
+        ].join(",")
       );
-      $meta.attr("content", content);
+      if ($meta.length) {
+        $meta.attr("content", content);
+      } else {
+        const $appendMeta = $('<meta />');
+        $appendMeta.attr("name", name);
+        $appendMeta.attr("content", content);
+        $("head").append($appendMeta);
+      }
     });
   }
   return he.decode($.html());
