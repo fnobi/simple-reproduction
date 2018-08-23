@@ -55,13 +55,25 @@ function applyRouteOption(html, route) {
         $meta.attr("content", content);
       } else {
         const $appendMeta = $('<meta />');
-        $appendMeta.attr("name", name);
+        $appendMeta.attr(calcMetaKey(name), name);
         $appendMeta.attr("content", content);
         $("head").append($appendMeta);
       }
     });
   }
   return he.decode($.html());
+}
+
+function calcMetaKey(name) {
+  if (/^(og|twitter):/.test(name)) {
+    return 'property';
+  }
+
+  if (name === 'refresh') {
+    return 'http-equiv';
+  }
+
+  return 'name';
 }
 
 module.exports = SimpleReproduction;
