@@ -5,6 +5,10 @@
   "main": "index.js",
   "author": "Fujisawa Shin",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fnobi/simple-reproduction.git"
+  },
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "lodash": "^4.17.10",
