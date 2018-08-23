@@ -4,5 +4,11 @@
   "description": "copy html with meta rewriting.",
   "main": "index.js",
   "author": "Fujisawa Shin",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "lodash": "^4.17.10",
+    "mkdirp-promise": "^5.0.1",
+    "mz": "^2.7.0"
+  }
 }
