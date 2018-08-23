@@ -5,6 +5,7 @@ const _ = require("lodash");
 const fs = require("mz/fs");
 const mkdirp = require("mkdirp-promise");
 const cheerio = require("cheerio");
+const he = require('he');
 
 class SimpleReproduction extends EventEmitter {
   start({ src, routes }) {
@@ -16,7 +17,7 @@ class SimpleReproduction extends EventEmitter {
             const htmlDest = completeHtmlPath(dest);
             return Promise.resolve()
               .then(() => mkdirp(htmlDest.replace(/[^/]+\.html$/, "")))
-              .then(() => fs.writeFile(htmlDest, applyRouteOption(html, route)))
+              .then(() => fs.writeFile(htmlDest, applyRouteOption(html, route), { encoding: "utf-8" }))
               .then(() =>
                 this.emit("write", {
                   htmlDest,
@@ -49,7 +50,7 @@ function applyRouteOption(html, route) {
       $meta.attr("content", content);
     });
   }
-  return $.html();
+  return he.decode($.html());
 }
 
 module.exports = SimpleReproduction;
