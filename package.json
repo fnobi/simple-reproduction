@@ -15,5 +15,9 @@
     "lodash": "^4.17.10",
     "mkdirp-promise": "^5.0.1",
     "mz": "^2.7.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.4.0",
+    "prettier-eslint": "^8.8.2"
   }
 }
