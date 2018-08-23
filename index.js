@@ -1,46 +1,50 @@
-const EventEmitter = require("events").EventEmitter;
-const path = require("path");
+const EventEmitter = require('events').EventEmitter;
+const path = require('path');
 
-const _ = require("lodash");
-const fs = require("mz/fs");
-const mkdirp = require("mkdirp-promise");
-const cheerio = require("cheerio");
+const _ = require('lodash');
+const fs = require('mz/fs');
+const mkdirp = require('mkdirp-promise');
+const cheerio = require('cheerio');
 const he = require('he');
 
 class SimpleReproduction extends EventEmitter {
   start({ src, routes }) {
     return Promise.resolve()
-      .then(() => fs.readFile(src, "utf-8"))
+      .then(() => fs.readFile(src, 'utf-8'))
       .then(html => {
         return Promise.all(
           _.map(routes, (route, dest) => {
             const htmlDest = completeHtmlPath(dest);
             return Promise.resolve()
-              .then(() => mkdirp(htmlDest.replace(/[^/]+\.html$/, "")))
-              .then(() => fs.writeFile(htmlDest, applyRouteOption(html, route), { encoding: "utf-8" }))
+              .then(() => mkdirp(htmlDest.replace(/[^/]+\.html$/, '')))
               .then(() =>
-                this.emit("write", {
+                fs.writeFile(htmlDest, applyRouteOption(html, route), {
+                  encoding: 'utf-8',
+                })
+              )
+              .then(() =>
+                this.emit('write', {
                   htmlDest,
-                  route
+                  route,
                 })
               );
           })
         );
       })
-      .then(() => this.emit("end"));
+      .then(() => this.emit('end'));
   }
 }
 
 function completeHtmlPath(pathName) {
   return /\.html$/.test(pathName)
     ? pathName
-    : path.join(pathName, "index.html");
+    : path.join(pathName, 'index.html');
 }
 
 function applyRouteOption(html, route) {
   const $ = cheerio.load(html);
   if (route.title) {
-    $("title").text(route.title);
+    $('title').text(route.title);
   }
   if (route.meta) {
     _.each(route.meta, (content, name) => {
@@ -48,16 +52,16 @@ function applyRouteOption(html, route) {
         [
           `meta[name="${name}"]`,
           `meta[property="${name}"]`,
-          `meta[http-equiv="${name}"]`
-        ].join(",")
+          `meta[http-equiv="${name}"]`,
+        ].join(',')
       );
       if ($meta.length) {
-        $meta.attr("content", content);
+        $meta.attr('content', content);
       } else {
         const $appendMeta = $('<meta />');
         $appendMeta.attr(calcMetaKey(name), name);
-        $appendMeta.attr("content", content);
-        $("head").append($appendMeta);
+        $appendMeta.attr('content', content);
+        $('head').append($appendMeta);
       }
     });
   }
