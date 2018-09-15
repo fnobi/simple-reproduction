@@ -6,32 +6,79 @@ const fs = require('mz/fs');
 const mkdirp = require('mkdirp-promise');
 const cheerio = require('cheerio');
 const he = require('he');
+const pug = require('pug');
 
 class SimpleReproduction extends EventEmitter {
-  start({ src, dest = '.', routes }) {
+  constructor(opts = {}) {
+    super();
+    this.init(opts);
+  }
+
+  init({ src, dest = '.', templateOptions = {}, templateParameters = {} }) {
+    this.src = src;
+    this.dest = dest;
+    this.templateOptions = templateOptions;
+    this.templateParameters = templateParameters;
+    if (src || templateOptions) this.template = null;
+  }
+
+  start(opts) {
+    this.init(opts);
     return Promise.resolve()
-      .then(() => fs.readFile(src, 'utf-8'))
-      .then(html => {
+      .then(() => this.loadTemplate())
+      .then(() => {
         return Promise.all(
-          _.map(routes, (route, htmlPath) => {
-            const htmlDest = path.join(dest, completeHtmlPath(htmlPath));
-            return Promise.resolve()
-              .then(() => mkdirp(htmlDest.replace(/[^/]+\.html$/, '')))
-              .then(() =>
-                fs.writeFile(htmlDest, applyRouteOption(html, route), {
-                  encoding: 'utf-8',
-                })
-              )
-              .then(() =>
-                this.emit('write', {
-                  htmlDest,
-                  route,
-                })
-              );
+          _.map(opts.routes, (route, htmlPath) => {
+            return this.buildRoute(route, htmlPath);
           })
         );
       })
       .then(() => this.emit('end'));
+  }
+
+  buildRoute(route, htmlPath) {
+    const htmlDest = path.join(this.dest, completeHtmlPath(htmlPath));
+    return Promise.resolve()
+      .then(() => mkdirp(htmlDest.replace(/[^/]+\.html$/, '')))
+      .then(() => {
+        const html = this.buildTemplate(route);
+        const injected = applyRouteOption(html, route);
+        return fs.writeFile(htmlDest, injected, {
+          encoding: 'utf-8',
+        });
+      })
+      .then(() =>
+        this.emit('write', {
+          htmlDest,
+          route,
+        })
+      );
+  }
+
+  loadTemplate() {
+    if (this.template) return Promise.resolve(this.template);
+    return Promise.resolve()
+      .then(() => fs.readFile(this.src, 'utf-8'))
+      .then(body => {
+        if (/\.html$/.test(this.src)) {
+          return (this.template = body);
+        }
+        if (/\.pug$/.test(this.src)) {
+          return (this.template = pug.compile(body, this.templateOptions));
+        }
+        return Promise.reject(new Error(`${this.src} is invalid src.`));
+      });
+  }
+
+  buildTemplate({ locals }) {
+    const parameters = Object.assign({}, this.templateParameters, locals);
+    if (/\.html$/.test(this.src)) {
+      return this.template;
+    }
+    if (/\.pug$/.test(this.src)) {
+      return this.template(parameters);
+    }
+    return Promise.reject(new Error(`${this.src} is invalid src.`));
   }
 }
 
@@ -41,13 +88,13 @@ function completeHtmlPath(pathName) {
     : path.join(pathName, 'index.html');
 }
 
-function applyRouteOption(html, route) {
+function applyRouteOption(html, { title, meta }) {
   const $ = cheerio.load(html);
-  if (route.title) {
-    $('title').text(route.title);
+  if (title) {
+    $('title').text(title);
   }
-  if (route.meta) {
-    _.each(route.meta, (content, name) => {
+  if (meta) {
+    _.each(meta, (content, name) => {
       const $meta = $(
         [
           `meta[name="${name}"]`,
