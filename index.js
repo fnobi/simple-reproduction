@@ -14,11 +14,11 @@ class SimpleReproduction extends EventEmitter {
     this.init(opts);
   }
 
-  init({ src, dest = '.', templateOptions = {}, templateParameters = {} }) {
-    this.src = src;
-    this.dest = dest;
-    this.templateOptions = templateOptions;
-    this.templateParameters = templateParameters;
+  init({ src, dest, templateOptions, templateParameters }) {
+    this.src = src || this.src;
+    this.dest = dest || this.dest;
+    this.templateOptions = templateOptions || this.templateOptions;
+    this.templateParameters = templateParameters || this.templateParameters;
     if (src || templateOptions) this.template = null;
   }
 
@@ -37,7 +37,7 @@ class SimpleReproduction extends EventEmitter {
   }
 
   buildRoute(route, htmlPath) {
-    const htmlDest = path.join(this.dest, completeHtmlPath(htmlPath));
+    const htmlDest = path.join(this.dest || '.', completeHtmlPath(htmlPath));
     return Promise.resolve()
       .then(() => mkdirp(htmlDest.replace(/[^/]+\.html$/, '')))
       .then(() => {
