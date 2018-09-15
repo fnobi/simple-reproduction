@@ -8,13 +8,13 @@ const cheerio = require('cheerio');
 const he = require('he');
 
 class SimpleReproduction extends EventEmitter {
-  start({ src, routes }) {
+  start({ src, dest = '.', routes }) {
     return Promise.resolve()
       .then(() => fs.readFile(src, 'utf-8'))
       .then(html => {
         return Promise.all(
-          _.map(routes, (route, dest) => {
-            const htmlDest = completeHtmlPath(dest);
+          _.map(routes, (route, htmlPath) => {
+            const htmlDest = path.join(dest, completeHtmlPath(htmlPath));
             return Promise.resolve()
               .then(() => mkdirp(htmlDest.replace(/[^/]+\.html$/, '')))
               .then(() =>
