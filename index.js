@@ -88,7 +88,7 @@ function completeHtmlPath(pathName) {
     : path.join(pathName, 'index.html');
 }
 
-function applyRouteOption(html, { title, meta }) {
+function applyRouteOption(html, { title, meta, link }) {
   const $ = cheerio.load(html);
   if (title) {
     $('title').text(title);
@@ -109,6 +109,19 @@ function applyRouteOption(html, { title, meta }) {
         $appendMeta.attr(calcMetaKey(name), name);
         $appendMeta.attr('content', content);
         $('head').append($appendMeta);
+      }
+    });
+  }
+  if (link) {
+    _.each(link, (href, rel) => {
+      const $link = $(`link[rel="${rel}"]`);
+      if ($link.length) {
+        $link.attr('content', href);
+      } else {
+        const $appendLink = $('<link />');
+        $appendLink.attr('rel', rel);
+        $appendLink.attr('href', href);
+        $('head').append($appendLink);
       }
     });
   }
