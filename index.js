@@ -3,6 +3,7 @@ const path = require('path');
 
 const _ = require('lodash');
 const fs = require('mz/fs');
+const mkdirp = require('mkdirp');
 const cheerio = require('cheerio');
 const he = require('he');
 const pug = require('pug');
@@ -41,7 +42,7 @@ class SimpleReproduction extends EventEmitter {
 
     const builtinFs = require('fs');
     if (!builtinFs.existsSync(dirPath)) {
-      builtinFs.mkdirSync(dirPath);
+      mkdirp.sync(dirPath);
     }
 
     return Promise.resolve()
