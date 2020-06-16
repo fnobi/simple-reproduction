@@ -3,7 +3,6 @@ const path = require('path');
 
 const _ = require('lodash');
 const fs = require('mz/fs');
-const mkdirp = require('mkdirp-promise');
 const cheerio = require('cheerio');
 const he = require('he');
 const pug = require('pug');
@@ -38,8 +37,14 @@ class SimpleReproduction extends EventEmitter {
 
   buildRoute(route, htmlPath) {
     const htmlDest = path.join(this.dest || '.', completeHtmlPath(htmlPath));
+    const dirPath = htmlDest.replace(/[^/]+\.html$/, '');
+
+    const builtinFs = require('fs');
+    if (!builtinFs.existsSync(dirPath)) {
+      builtinFs.mkdirSync(dirPath);
+    }
+
     return Promise.resolve()
-      .then(() => mkdirp(htmlDest.replace(/[^/]+\.html$/, '')))
       .then(() => {
         const html = this.buildTemplate(route);
         const injected = applyRouteOption(html, route);
