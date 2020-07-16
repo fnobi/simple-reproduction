@@ -1,6 +1,6 @@
 {
   "name": "simple-reproduction",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "copy html with meta rewriting.",
   "main": "index.js",
   "author": "Fujisawa Shin",
