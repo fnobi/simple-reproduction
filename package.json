@@ -15,7 +15,7 @@
     "lodash": "^4.17.19",
     "mkdirp": "^1.0.4",
     "mz": "^2.7.0",
-    "pug": "^2.0.3"
+    "pug": "^3.0.1"
   },
   "devDependencies": {
     "eslint": "^5.4.0",
