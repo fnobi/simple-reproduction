@@ -18,7 +18,7 @@
     "pug": "^3.0.1"
   },
   "devDependencies": {
-    "eslint": "^9.39.1",
-    "prettier-eslint": "^16.4.2"
+    "eslint": "^10.6.0",
+    "prettier-eslint": "^17.1.1"
   }
 }
